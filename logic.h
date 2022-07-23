@@ -3,6 +3,14 @@
 #include <map>
 #include <string>
 #include <thread>
+#include <memory>
+#include <mutex>
+#include <future>
+#include <condition_variable>
+#include <ncurses.h>
+#include <fstream>
+#include <iostream>
+//#include <deque>
 //TODO
 //snake handling:
 //  movement
@@ -15,6 +23,19 @@
 //  degub features
 //async input handling
 
+#define EMPTY 0;
+#define FRUIT 1;
+#define BODY 2;
+#define HEAD 3;
+
+
+#define UP 1
+#define DOWN 2
+#define RIGHT 3
+#define LEFT 4
+
+#define GAMETICK 500000
+
 class GameObject{
     int type;
     std::pair<int,int>pos;
@@ -22,64 +43,49 @@ public:
     int getType();
     void setType(int type);
 
-    std::pair<int,int>getPos();
-    void setPos(int x, int y);
-
-    GameObject(int x, int y, int type);
     GameObject(int type);
     GameObject();
 };
 
 
 
-
-
-class Snake : public GameObject{
-    std::stack<std::pair<int,int>> body;
-    std::vector<std::pair<int,int>>prevPos;
-
+class SnakeBody : public GameObject{
 public:
-    void grow();
+    std::pair<int,int>pos;
+    int dir;
+    std::pair<int,int>prevPos;
+    SnakeBody(std::pair<int,int>pos);
 
-    std::vector<std::pair<int,int>> getBody();
-    std::vector<std::pair<int,int>> getPrevPos();
-    
-
-    Snake(std::vector<std::pair<int,int>>body);
-    Snake(int x, int y);
-    Snake();
 };
 
-class Fruit : public GameObject{
-    std::pair<int,int>pos;
 
+class Snake{
 public:
-    void getEaten();
 
-    Fruit(int x, int y);
-    Fruit();
+    std::vector<SnakeBody>body;
+    int size();
+    void grow();
+    void move(int dir);
+    
+
+    Snake(std::vector<SnakeBody> snake);
+    Snake(SnakeBody head);
 };
 
 class Plane{
-    int sizeX;
-    int sizeY;
-    std::vector<std::vector<GameObject>>plane;
 public:
-    int getSizeX();
-    int getSizeY();
-    void setSizeX();
-    void setSIzeY();
 
-    GameObject at(int x, int y);
-    void set(int x, int y, GameObject val);
+    const int sizeX;
+    const int sizeY;
+    std::vector<std::vector<GameObject>>plane;
     
 
     
     Plane(int sizeX, int sizeY);
 };
 
-char asyncInput();
 
-int gameLoop();
+
+
 
 

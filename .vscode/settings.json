@@ -89,6 +89,10 @@
     "cfenv": "cpp",
     "cinttypes": "cpp",
     "typeindex": "cpp",
-    "typeinfo": "cpp"
+    "typeinfo": "cpp",
+    "condition_variable": "cpp",
+    "fstream": "cpp",
+    "future": "cpp",
+    "mutex": "cpp"
   }
 }
