@@ -52,23 +52,30 @@ int gameLoop(){
         SnakeBody(std::pair<int,int>(13,10)),
         SnakeBody(std::pair<int,int>(14,10))
     }));
-
+    c = ' ';
+    char foo = ' ';
+    char temp;
     while(true){
         c = getch();
-        int foo = (c!=ERR ? c : foo);
-        //clear();
+        if(c!=ERR)foo=c;
         
+        //clear();
         if(foo=='w')snake.move(UP);
         else if(foo=='s')snake.move(DOWN);
-        else if(foo='d')snake.move(RIGHT);
+        else if(foo=='d')snake.move(RIGHT);
         else if(foo=='a')snake.move(LEFT);
+        else if(foo=='g'){
+            snake.grow();
+            foo=temp;
+        }
         keyPressed(foo);
         showSnake(snake);
         
-        //else printf("nothing received", NULL, NULL);
+        
         
         usleep(GAMETICK);
         system("clear");
+        temp=foo;
     }
     endwin();
 }

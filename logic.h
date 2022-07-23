@@ -34,7 +34,7 @@
 #define RIGHT 3
 #define LEFT 4
 
-#define GAMETICK 500000
+#define GAMETICK 350000
 
 class GameObject{
     int type;

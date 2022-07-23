@@ -67,6 +67,7 @@ void Snake::move(int dir){
 
 void Snake::grow(){
     body.push_back(SnakeBody(body[body.size()-1].prevPos));
+    body[size()-1].dir=body[size()-2].dir;
 }
 
 
