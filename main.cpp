@@ -25,6 +25,34 @@ void showSnake(Snake& snake){
         std::cout<<"["<<i.pos.first<<" "<<i.pos.second<<" "<<s<<"]\r"<<std::endl;
     }
 }
+
+void debugHead(SnakeBody& head){
+    std::cout<<"Head position: ["<<head.pos.first<<" "<<head.pos.second<<"]\r"<<std::endl;
+    std::cout<<"Head direction: [";
+    if(head.dir==UP)std::cout<<"UP]\r"<<std::endl;
+    if(head.dir==DOWN)std::cout<<"DOWN]\r"<<std::endl;
+    if(head.dir==RIGHT)std::cout<<"RIGHT]\r"<<std::endl;
+    if(head.dir==LEFT)std::cout<<"LEFT]\r"<<std::endl;
+    std::cout<<"Is on edge? [";
+    if( head.pos.first==EDGEDOWN ||
+        head.pos.second==EDGEDOWN ||
+        head.pos.first==EDGEUP ||
+        head.pos.second==EDGEUP)std::cout<<"true]\r"<<std::endl;
+    else std::cout<<"false]\r"<<std::endl;
+}
+
+bool isAtEdge(Snake& snake){
+    if( snake.body[0].pos.first==EDGEDOWN ||
+        snake.body[0].pos.second==EDGEDOWN ||
+        snake.body[0].pos.first==EDGEUP ||
+        snake.body[0].pos.second==EDGEUP)return true;
+    return false;
+}
+
+void debugIsAtEdge(Snake& snake){
+    std::cout<<"[DEBUG] snake got to the edge of the map:\r"<<std::endl;
+    std::cout<<"heads position: "<<snake.body[0].pos.first<<" "<<snake.body[0].pos.second<<"\r"<<std::endl;
+}
 ///DEBUG
 
 int getHighScore(std::string filename){
@@ -55,27 +83,60 @@ int gameLoop(){
     c = ' ';
     char foo = ' ';
     char temp;
+    do{
+        c = getch();
+    }while(c!='a' && c!='d');
     while(true){
         c = getch();
         if(c!=ERR)foo=c;
         
         //clear();
-        if(foo=='w')snake.move(UP);
-        else if(foo=='s')snake.move(DOWN);
-        else if(foo=='d')snake.move(RIGHT);
-        else if(foo=='a')snake.move(LEFT);
+        if(foo=='w' && temp!='s'){
+            snake.move(UP);
+            temp='w';
+        }
+        else if(foo=='s' && temp!='w'){
+            snake.move(DOWN);
+            temp='s';
+        }
+        else if(foo=='d' && temp!='a'){
+            snake.move(RIGHT);
+            temp='d';
+        }
+        else if(foo=='a' && temp!='d'){
+            snake.move(LEFT);
+            temp='a';
+        }
         else if(foo=='g'){
             snake.grow();
             foo=temp;
         }
+        else if(foo!=' '){
+            foo=temp;
+            keyPressed(foo);
+            showSnake(snake);
+            debugHead(snake.body[0]);
+            //usleep(GAMETICK);
+            system("clear");
+            continue;
+        }
         keyPressed(foo);
         showSnake(snake);
+        debugHead(snake.body[0]);
+        
+
+        if(isAtEdge(snake)){
+            debugIsAtEdge(snake);
+            std::cout<<"GAME OVER\r"<<std::endl;
+            usleep(3000000);
+            break;
+        }
         
         
         
         usleep(GAMETICK);
         system("clear");
-        temp=foo;
+        
     }
     endwin();
 }
@@ -84,5 +145,4 @@ int gameLoop(){
 int main(){
     gameLoop();
     return 0;
-
 }

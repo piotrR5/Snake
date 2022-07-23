@@ -34,6 +34,9 @@
 #define RIGHT 3
 #define LEFT 4
 
+#define EDGEDOWN 0
+#define EDGEUP 100
+
 #define GAMETICK 350000
 
 class GameObject{

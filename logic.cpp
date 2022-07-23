@@ -31,10 +31,6 @@ int Snake::size(){
 
 void Snake::move(int dir){
 
-    
-
-    
-
     for(int i=size()-1;i>0;i--){
         body[i].prevPos=body[i].pos;
         if(body[i].dir==UP){
@@ -44,10 +40,10 @@ void Snake::move(int dir){
             body[i].pos.first--;
             body[i].dir=body[i-1].dir;
         }else if(body[i].dir==RIGHT){
-            body[i].pos.first++;
+            body[i].pos.second++;
             body[i].dir=body[i-1].dir;
         }else{
-            body[i].pos.first--;
+            body[i].pos.second--;
             body[i].dir=body[i-1].dir;
         }
     }
