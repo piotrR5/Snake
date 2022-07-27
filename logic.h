@@ -10,23 +10,16 @@
 #include <ncurses.h>
 #include <fstream>
 #include <iostream>
-//#include <deque>
-//TODO
-//snake handling:
-//  movement
-//  loss
-//  gaining length
-//
+#include <ctime>
+#include <cstdlib>
 //game handling:
-//  game loop
-//  dialog with frontend.h
-//  degub features
-//async input handling
+//  fruits
+//  walls
 
-#define EMPTY 0;
-#define FRUIT 1;
-#define BODY 2;
-#define HEAD 3;
+#define EMPTY 0
+#define FRUIT 1
+#define BODY 2
+#define HEAD 3
 
 
 #define UP 1
@@ -35,16 +28,18 @@
 #define LEFT 4
 
 #define EDGEDOWN 0
-#define EDGEUP 100
+#define EDGEUP 25
 
-#define GAMETICK 350000
+#define GAMETICK_EASY 350000
+#define GAMETICK_NORMAL 300000
+#define GAMETICK_HARD 200000
 
 class GameObject{
+
+public:
     int type;
     std::pair<int,int>pos;
-public:
-    int getType();
-    void setType(int type);
+
 
     GameObject(int type);
     GameObject();
@@ -54,7 +49,6 @@ public:
 
 class SnakeBody : public GameObject{
 public:
-    std::pair<int,int>pos;
     int dir;
     std::pair<int,int>prevPos;
     SnakeBody(std::pair<int,int>pos);
@@ -64,27 +58,38 @@ public:
 
 class Snake{
 public:
-
+    int lastDir;
     std::vector<SnakeBody>body;
     int size();
     void grow();
     void move(int dir);
+    bool isAtEdge();
+    bool hitSnakeSelf();
+    bool isInSnake(std::pair<int,int>pos);
+    
+    //TODO bool hitWall();
     
 
+    Snake();
     Snake(std::vector<SnakeBody> snake);
     Snake(SnakeBody head);
 };
 
 class Plane{
 public:
-
-    const int sizeX;
-    const int sizeY;
+    int GAMETICK;
+    int sizeX;
+    int sizeY;
+    int highScore;
     std::vector<std::vector<GameObject>>plane;
+    Snake snake;
     
+    void generateFruit(int n);
+    void generateWalls(std::vector<std::pair<int,int>>pos);
+    void update();
+    void isAtFruit();
 
-    
-    Plane(int sizeX, int sizeY);
+    Plane(int sizeX, int sizeY, Snake snake);
 };
 
 
