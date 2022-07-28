@@ -101,7 +101,7 @@ void printScreen(WINDOW *w, Plane& plane, char keyPressed){
         std::cout<<" |\n\r";
     }
     std::cout<<std::string(12,' ')<<std::string(54,'-')<<"\n\r";
-
+    if(plane.snake.size()>plane.highScore)plane.highScore=plane.snake.size();
     std::cout<<"\n\r";
     std::cout<<std::string(15, ' ')<<"[ current score: "<<plane.snake.size()<<" ]\n\r";
     std::cout<<std::string(15, ' ')<<"[ highscore: "<<plane.highScore<<" ]\n\r";
@@ -119,6 +119,15 @@ int getHighScore(std::string filename){
     return stoi(foo);
 }
 
+void saveScore(std::string filename, int currentHighScore, int currentScore){
+    if(currentScore>currentHighScore){
+        std::fstream file;
+        file.open(filename);
+        file<<currentScore;
+        file.close();
+    }
+}
+
 int gameLoop(){
     WINDOW *w;
     char c;
@@ -131,14 +140,61 @@ int gameLoop(){
     Snake snake(SnakeBody({10,10}));
 
     Plane plane(EDGEUP, EDGEUP, snake);
+    ////////////////////////////////////////////////////STARTING SCREEN////////////////////
+    int diff=1;
+    char usrInput;
     
-    plane.generateFruit(5);
+    while(true){
+        std::cout<<"\n\t\t\t##### ##   #  ###  #   # #####\r"<<std::endl;
+        std::cout<<"\t\t\t#     # #  # #   # #  #  #    \r"<<std::endl;
+        std::cout<<"\t\t\t##### #  # # ##### # #   #### \r"<<std::endl;
+        std::cout<<"\t\t\t    # #   ## #   # #  #  #    \r"<<std::endl;
+        std::cout<<"\t\t\t##### #    # #   # #   # #####\r"<<std::endl;
+        std::cout<<"\n\n\n";
+        std::cout<<"\t\t\tChoose difficulty: \n\r";
+        if(diff==0)std::cout<<"\t\t\t[ x ] Easy (slow game, a lot of fruit.\n\r";
+        else std::cout<<"\t\t\t[   ] Easy (slow game, a lot of fruit\n\r";
+        if(diff==1)std::cout<<"\t\t\t[ x ] Normal (faster game, just enough fruit.\n\r";
+        else std::cout<<"\t\t\t[   ] Normal (faster game, just enough fruit.\n\r";
+        if(diff==2)std::cout<<"\t\t\t[ x ] Hard (hellishly fast game, barely any fruit.\n\r";
+        else std::cout<<"\t\t\t[   ] Hard (hellishly fast game, barely any fruit.\n\r";
+        std::cout<<"\t\t\tIf you made up your mind, press [SPACE]\n\r";
+        usrInput=getchar();
+        if(usrInput=='w' && diff>0)diff--;
+        else if(usrInput=='s' && diff<2)diff++;
+        else if(usrInput==' '){
+            switch(diff){
+                case 0:{
+                    plane.GAMETICK=GAMETICK_EASY;
+                    plane.generateFruit(15);
+                }
+                break;
+                case 1:{
+                    plane.GAMETICK=GAMETICK_NORMAL;
+                    plane.generateFruit(10);
+                }
+                break;
+                case 2:{
+                    plane.GAMETICK=GAMETICK_HARD;
+                    plane.generateFruit(3);
+                }
+                break;
+            }
+            break;
+        }
+        system("clear");
+    }
+
+    ////////////////////////////////////////////////////STARTING SCREEN////////////////////
+    
+    
     plane.highScore=getHighScore("highScore.snake");
-    plane.GAMETICK=GAMETICK_NORMAL;
+    
     c = ' ';
     char foo = ' ';
     char temp;
-    do{c=getchar();}while(c=='s');
+    printScreen(w, plane, foo);
+    //do{c=getchar();}while(c=='s');
     while(true){
          
         c = getch();
@@ -171,23 +227,27 @@ int gameLoop(){
             system("clear");
             continue;
         }
-        plane.update();
-        printScreen(w, plane, foo);
+        
 
        
         
 
         if(plane.snake.isAtEdge()){
             std::cout<<std::string(32, ' ')<<"GAME OVER, you hit the edge\r"<<std::endl;
+            saveScore("highScore.snake", plane.highScore, plane.snake.size());
             usleep(3000000);
             break;
+
         }
 
         if(plane.snake.hitSnakeSelf()){
             std::cout<<std::string(32, ' ')<<"GAME OVER, you hit yourself\r"<<std::endl;
+            saveScore("highScore.snake", plane.highScore, plane.snake.size());
             usleep(10000000);
             break;
         }
+        plane.update();
+        printScreen(w, plane, foo);
         
         
         

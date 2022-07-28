@@ -82,7 +82,7 @@ void Snake::grow(){
 
     body.emplace(body.begin(), body[0].prevPos);
     body[0].dir=lastDir;
-    move(body[size()-1].dir);
+    // move(body[size()-1].dir);
 }
 
 bool Snake::isAtEdge(){

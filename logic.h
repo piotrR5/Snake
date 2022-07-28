@@ -88,6 +88,7 @@ public:
     void generateWalls(std::vector<std::pair<int,int>>pos);
     void update();
     void isAtFruit();
+    
 
     Plane(int sizeX, int sizeY, Snake snake);
 };
