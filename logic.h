@@ -12,6 +12,7 @@
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
+
 //game handling:
 //  fruits
 //  walls
@@ -20,6 +21,7 @@
 #define FRUIT 1
 #define BODY 2
 #define HEAD 3
+#define WALL 4
 
 
 #define UP 1
@@ -66,6 +68,7 @@ public:
     bool isAtEdge();
     bool hitSnakeSelf();
     bool isInSnake(std::pair<int,int>pos);
+    bool hitSnakeWall();
     
     //TODO bool hitWall();
     
@@ -86,15 +89,9 @@ public:
     
     void generateFruit(int n);
     void generateWalls(std::vector<std::pair<int,int>>pos);
-    void update();
+    int update();
     void isAtFruit();
     
 
     Plane(int sizeX, int sizeY, Snake snake);
 };
-
-
-
-
-
-

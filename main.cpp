@@ -73,6 +73,7 @@ struct debug{
                 else if(plane.plane[i][j].type==FRUIT)std::cout<<"o ";
                 else if(plane.plane[i][j].type==BODY)std::cout<<"[]";
                 else if(plane.plane[i][j].type==HEAD)std::cout<<"##";
+                else if(plane.plane[i][j].type==WALL)std::cout<<"00";
             }
             std::cout<<"\r"<<std::endl;
         }
@@ -80,7 +81,7 @@ struct debug{
 };
 ///DEBUG
 
-void printScreen(WINDOW *w, Plane& plane, char keyPressed){
+void printScreen(WINDOW *w, Plane& plane, int keyPressed){
     std::cout<<"\n\t\t\t##### ##   #  ###  #   # #####\r"<<std::endl;
     std::cout<<"\t\t\t#     # #  # #   # #  #  #    \r"<<std::endl;
     std::cout<<"\t\t\t##### #  # # ##### # #   #### \r"<<std::endl;
@@ -97,6 +98,7 @@ void printScreen(WINDOW *w, Plane& plane, char keyPressed){
             else if(plane.plane[i][j].type==BODY)std::cout<<"##";
             else if(plane.plane[i][j].type==HEAD)std::cout<<"OO";
             else if(plane.plane[i][j].type==FRUIT)std::cout<<"<>";
+            else if(plane.plane[i][j].type==WALL)std::cout<<"00";
         }
         std::cout<<" |\n\r";
     }
@@ -105,7 +107,12 @@ void printScreen(WINDOW *w, Plane& plane, char keyPressed){
     std::cout<<"\n\r";
     std::cout<<std::string(15, ' ')<<"[ current score: "<<plane.snake.size()<<" ]\n\r";
     std::cout<<std::string(15, ' ')<<"[ highscore: "<<plane.highScore<<" ]\n\r";
-    std::cout<<std::string(15, ' ')<<"[ input: "<<keyPressed<<" ]\n\r";
+    std::cout<<std::string(15, ' ')<<"[ input: ";
+    if(keyPressed==KEY_UP)std::cout<<"ARR_UP";
+    else if(keyPressed==KEY_DOWN)std::cout<<"ARR_DOWN";
+    else if(keyPressed==KEY_RIGHT)std::cout<<"ARR_RIGHT";
+    else if(keyPressed==KEY_LEFT)std::cout<<"ARR_LEFT";
+    std::cout<<" ]\n\r";
 
 }
 
@@ -119,31 +126,111 @@ int getHighScore(std::string filename){
     return stoi(foo);
 }
 
-void saveScore(std::string filename, int currentHighScore, int currentScore){
-    if(currentScore>currentHighScore){
-        std::fstream file;
-        file.open(filename);
-        file<<currentScore;
-        file.close();
+void saveScore(std::string filename, int currentHighScore){
+    std::ofstream file;
+    file.open(filename, std::ios::in);
+    file<<std::to_string(currentHighScore);
+    file.close();
+}
+
+void levelBuilder(WINDOW *w, Plane& plane){
+    plane.GAMETICK=GAMETICK_EASY;
+    int input=10;
+    int x=10,y=10;
+    keypad(w,true);
+    nodelay(w, false);
+    //intrflush(stdscr, FALSE);
+    system("clear");
+    while(true){
+        std::cout<<std::string(10,' ')<<"Use arrow keys to move the cursor,\n\r";
+        std::cout<<std::string(10,' ')<<"press f to place or remove fruit,\n\r";
+        std::cout<<std::string(10,' ')<<"press w to place or remove wall.\n\r";
+        std::cout<<std::string(10,' ')<<"change velocity of snake using 1,2,3\n\r";
+        std::cout<<"\t\t\tx: "<<x<<" y: "<<y<<"\n\r";
+        /*for(auto& i:plane.plane){
+            for(auto& j:i){
+                std::cout<<"[";
+                if(j.pos.first==x && j.pos.second==y)std::cout<<"|";
+                else if(j.type==EMPTY)std::cout<<" ";
+                else if(j.type==FRUIT)std::cout<<"o";
+                else if(j.type==BODY)std::cout<<"#";
+                else if(j.type==HEAD)std::cout<<"0";
+                else if(j.type==WALL)std::cout<<"w";
+                std::cout<<"]";
+            }
+            std::cout<<"\n\r";
+        }*/
+
+        for(int i=0;i<plane.sizeX;i++){
+            for(int j=0;j<plane.sizeX;j++){
+                std::cout<<"[";
+                if(i==x && j==y)std::cout<<"|";
+                else if(plane.plane[24-i][j].type==EMPTY)std::cout<<" ";
+                else if(plane.plane[24-i][j].type==FRUIT)std::cout<<"o";
+                else if(plane.plane[24-i][j].type==BODY)std::cout<<"#";
+                else if(plane.plane[24-i][j].type==HEAD)std::cout<<"0";
+                else if(plane.plane[24-i][j].type==WALL)std::cout<<"w";
+                std::cout<<"]";
+            }
+            std::cout<<"\n\r";
+        }
+        std::cout<<"\t\t\tSnake speed: "<<plane.GAMETICK<<"\n\r";
+        input=getch();
+        if(input==KEY_UP){
+            if(x>0)x--;
+        }
+        else if(input==KEY_DOWN){
+            if(x<24)x++;
+        }
+        else if(input==KEY_RIGHT){
+            if(y<24)y++;
+        }
+        else if(input==KEY_LEFT){
+            if(y>0)y--;
+        }
+        else if(input=='f'){
+            if(plane.plane[24-x][y].type==EMPTY)plane.plane[24-x][y].type=FRUIT;
+            else if(plane.plane[24-x][y].type==FRUIT)plane.plane[24-x][y].type=EMPTY;
+        }
+        else if(input=='w'){
+            if(plane.plane[24-x][y].type==EMPTY)plane.plane[24-x][y].type=WALL;
+            else if(plane.plane[24-x][y].type==WALL)plane.plane[24-x][y].type=EMPTY;
+        }
+        else if(input=='1'){
+            plane.GAMETICK=GAMETICK_EASY;
+        }
+        else if(input=='2'){
+            plane.GAMETICK=GAMETICK_NORMAL;
+        }
+        else if(input=='3'){
+            plane.GAMETICK=GAMETICK_HARD;
+        }
+        else if(input==' ' || input==KEY_ENTER){
+            return;
+        }
+        system("clear");
     }
 }
 
 int gameLoop(){
     WINDOW *w;
-    char c;
-           
+    int c;
+
+        
 
     
     w = initscr();
     noecho();
-    nodelay(w, true);
+    
     Snake snake(SnakeBody({10,10}));
-
+    keypad(w,true);
     Plane plane(EDGEUP, EDGEUP, snake);
+     
     ////////////////////////////////////////////////////STARTING SCREEN////////////////////
     int diff=1;
-    char usrInput;
+    int usrInput;
     
+    system("clear");
     while(true){
         std::cout<<"\n\t\t\t##### ##   #  ###  #   # #####\r"<<std::endl;
         std::cout<<"\t\t\t#     # #  # #   # #  #  #    \r"<<std::endl;
@@ -159,10 +246,11 @@ int gameLoop(){
         if(diff==2)std::cout<<"\t\t\t[ x ] Hard (hellishly fast game, barely any fruit.\n\r";
         else std::cout<<"\t\t\t[   ] Hard (hellishly fast game, barely any fruit.\n\r";
         std::cout<<"\t\t\tIf you made up your mind, press [SPACE]\n\r";
-        usrInput=getchar();
-        if(usrInput=='w' && diff>0)diff--;
-        else if(usrInput=='s' && diff<2)diff++;
-        else if(usrInput==' '){
+        std::cout<<"\t\t\tPress e to enter level editor\n\r";
+        usrInput=getch();
+        if(usrInput==KEY_UP && diff>0)diff--;
+        else if(usrInput==KEY_DOWN && diff<2)diff++;
+        else if(usrInput==KEY_ENTER || usrInput==' '){
             switch(diff){
                 case 0:{
                     plane.GAMETICK=GAMETICK_EASY;
@@ -182,17 +270,24 @@ int gameLoop(){
             }
             break;
         }
+        else if(usrInput=='e'){
+            levelBuilder(w,plane);
+            break;
+        }
         system("clear");
     }
-
+    plane.snake.body[0].pos.first=10;
+    plane.snake.body[0].pos.second=10;
+    plane.update();
+    nodelay(w, true); 
     ////////////////////////////////////////////////////STARTING SCREEN////////////////////
     
     
     plane.highScore=getHighScore("highScore.snake");
     
-    c = ' ';
-    char foo = ' ';
-    char temp;
+    c = KEY_UP;
+    int foo = KEY_UP;
+    int temp = KEY_UP;
     printScreen(w, plane, foo);
     //do{c=getchar();}while(c=='s');
     while(true){
@@ -200,33 +295,34 @@ int gameLoop(){
         c = getch();
         if(c!=ERR)foo=c;
     
-        if(foo=='w' && temp!='s'){
+        if(foo==KEY_UP && temp!=KEY_DOWN){
             plane.snake.move(UP);
-            temp='w';
+            temp=KEY_UP;
         }
-        else if(foo=='s' && temp!='w'){
+        else if(foo==KEY_DOWN && temp!=KEY_UP){
             plane.snake.move(DOWN);
-            temp='s';
+            temp=KEY_DOWN;
         }
-        else if(foo=='d' && temp!='a'){
+        else if(foo==KEY_RIGHT && temp!=KEY_LEFT){
             plane.snake.move(RIGHT);
-            temp='d';
+            temp=KEY_RIGHT;
         }
-        else if(foo=='a' && temp!='d'){
+        else if(foo==KEY_LEFT && temp!=KEY_RIGHT){
             plane.snake.move(LEFT);
-            temp='a';
-        }
-        else if(foo=='g'){
-            plane.snake.grow();
+            temp=KEY_LEFT;
+        }else{
             foo=temp;
-        }
-        else if(foo!=' '){
-            foo=temp;
-            plane.update();
+            if(plane.update()==-1)return plane.highScore;
             printScreen(w, plane, foo);
+            usleep(plane.GAMETICK);
             system("clear");
-            continue;
+            //continue;
         }
+        //else if(foo=='g'){
+        //    plane.snake.grow();
+        //    foo=temp;
+        //}
+        
         
 
        
@@ -234,7 +330,7 @@ int gameLoop(){
 
         if(plane.snake.isAtEdge()){
             std::cout<<std::string(32, ' ')<<"GAME OVER, you hit the edge\r"<<std::endl;
-            saveScore("highScore.snake", plane.highScore, plane.snake.size());
+            //saveScore("highScore.snake", plane.highScore, plane.snake.size());
             usleep(3000000);
             break;
 
@@ -242,11 +338,11 @@ int gameLoop(){
 
         if(plane.snake.hitSnakeSelf()){
             std::cout<<std::string(32, ' ')<<"GAME OVER, you hit yourself\r"<<std::endl;
-            saveScore("highScore.snake", plane.highScore, plane.snake.size());
-            usleep(10000000);
+            //saveScore("highScore.snake", plane.highScore, plane.snake.size());
+            usleep(3000000);
             break;
         }
-        plane.update();
+        if(plane.update()==-1)return plane.highScore;
         printScreen(w, plane, foo);
         
         
@@ -258,12 +354,14 @@ int gameLoop(){
         
         
     }
-    endwin();
-    
+    return plane.highScore;
 }
 
 
 int main(){
-    gameLoop();
+    int highScore = gameLoop();
+    std::cout<<highScore;
+    saveScore("highScore.snake",highScore);
+    endwin();
     return 0;
 }

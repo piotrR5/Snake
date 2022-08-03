@@ -1,4 +1,5 @@
 #include "logic.h"
+#include <unistd.h>
 
 GameObject::GameObject(int type){
     this->type=type;
@@ -76,7 +77,7 @@ void Snake::grow(){
         }
         body.emplace(body.begin(), SnakeBody({x,y}));
         body[0].dir=dir;
-        move(body[size()-1].dir);
+        //move(body[size()-1].dir);
         return;
     }
 
@@ -94,6 +95,7 @@ bool Snake::isAtEdge(){
 }
 
 bool Snake::hitSnakeSelf(){
+    if(size()<2)return false;
     for(int i=0;i<size();i++){
         for(int j=i+1;j<size();j++){
             if(body[i].pos.first==body[j].pos.first && body[i].pos.second==body[j].pos.second)return true;
@@ -123,10 +125,10 @@ Snake::Snake(){
 
 
 
-void Plane::update(){
+int Plane::update(){
     for(int i=0;i<EDGEUP;i++){
         for(int j=0;j<EDGEUP;j++){
-            if(plane[i][j].type!=FRUIT){
+            if(plane[i][j].type!=FRUIT && plane[i][j].type!=WALL){
                 plane[i][j].type=EMPTY;
             }   
         }
@@ -138,10 +140,20 @@ void Plane::update(){
         generateFruit(1);
     }
 
+    if(plane[snake.body[snake.size()-1].pos.first][snake.body[snake.size()-1].pos.second].type==WALL){
+        plane[snake.body[snake.size()-1].pos.first][snake.body[snake.size()-1].pos.first].type=EMPTY;
+        //snake.grow();
+        std::cout<<"\t\t\tYou hit a wall\n\r";
+        usleep(3000000);
+        return -1;
+        //generateFruit(1);
+    }
+
     for(auto i:snake.body){
         plane[i.pos.first][i.pos.second].type=BODY;
     }
     plane[snake.body[snake.body.size()-1].pos.first][snake.body[snake.body.size()-1].pos.second]=HEAD;
+    return 0;
 }
 
 void Plane::generateFruit(int n){
