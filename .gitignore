@@ -32,6 +32,7 @@
 *.app
 
 # Other
-.vscode/
-.directory/
+/.vscode/
+.directory
+highScore.snake
 
