@@ -33,6 +33,6 @@
 
 # Other
 /.vscode/
-.directory
+*.directory
 highScore.snake
 
